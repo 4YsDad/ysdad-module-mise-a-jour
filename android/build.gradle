@@ -1,0 +1,22 @@
+group = "com.ysdad.ysdad_mise_a_jour"
+version = "1.0.0"
+
+apply plugin: "com.android.library"
+
+android {
+    namespace = "com.ysdad.ysdad_mise_a_jour"
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk = 21
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation("androidx.core:core:1.13.1")
+}

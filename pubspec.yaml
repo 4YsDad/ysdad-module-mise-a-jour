@@ -1,0 +1,29 @@
+name: ysdad_mise_a_jour
+description: "Module Ysdad : avis de mise à jour automatique pour applis Flutter Android (APK hébergé), en français."
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ">=1.1.0 <2.0.0"
+  package_info_plus: ">=8.0.0 <11.0.0"
+  path_provider: ^2.1.0
+  shared_preferences: ^2.2.0
+  crypto: ^3.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.ysdad.ysdad_mise_a_jour
+        pluginClass: YsdadMiseAJourPlugin
