@@ -95,8 +95,8 @@ class YsdadMiseAJour {
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Laisse l'appli s'afficher avant d'aller sur le réseau.
-      Future<void>.delayed(const Duration(seconds: 2),
-          () => _verifierAuto(ouverture: true));
+      Future<void>.delayed(
+          const Duration(seconds: 2), () => _verifierAuto(ouverture: true));
     });
   }
 
@@ -455,7 +455,8 @@ class _TelechargementState extends State<_Telechargement> {
     IOSink? sortie;
     try {
       final dossier = await _dossierMaj();
-      final cible = File('${dossier.path}/maj-${widget.info.latestVersionCode}.apk');
+      final cible =
+          File('${dossier.path}/maj-${widget.info.latestVersionCode}.apk');
       final marque = File('${cible.path}.ok');
       if (await cible.exists() && await marque.exists()) {
         if (mounted) Navigator.of(context).pop(cible);
@@ -468,9 +469,12 @@ class _TelechargementState extends State<_Telechargement> {
         } catch (_) {}
       }
       final partiel = File('${cible.path}.part');
-      final rep = await _client
-          .send(http.Request('GET', Uri.parse(widget.info.apkUrl)))
-          .timeout(const Duration(seconds: 30));
+      // « identity » : pas de compression, pour que la taille annoncée
+      // corresponde aux octets reçus (sinon la progression est fausse).
+      final requete = http.Request('GET', Uri.parse(widget.info.apkUrl))
+        ..headers['Accept-Encoding'] = 'identity';
+      final rep =
+          await _client.send(requete).timeout(const Duration(seconds: 30));
       if (rep.statusCode != 200) {
         throw HttpException('HTTP ${rep.statusCode}');
       }
@@ -486,20 +490,22 @@ class _TelechargementState extends State<_Telechargement> {
             mounted) {
           dernierAffichage = maintenant;
           setState(() {
-            _progression =
-                (_total != null && _total! > 0) ? _recu / _total! : null;
+            _progression = (_total != null && _total! > 0)
+                ? (_recu / _total!).clamp(0.0, 1.0)
+                : null;
           });
         }
       }
       await sortie.flush();
       await sortie.close();
       sortie = null;
-      if (_total != null && _total! > 0 && _recu != _total) {
+      if (_total != null && _total! > 0 && _recu < _total!) {
         throw const HttpException('Téléchargement incomplet');
       }
       final attendu = widget.info.sha256;
       if (attendu != null && attendu.isNotEmpty) {
-        final empreinte = (await sha256.bind(partiel.openRead()).first).toString();
+        final empreinte =
+            (await sha256.bind(partiel.openRead()).first).toString();
         if (empreinte != attendu) {
           await partiel.delete();
           throw const FormatException('Empreinte du fichier invalide');
@@ -522,8 +528,9 @@ class _TelechargementState extends State<_Telechargement> {
 
   @override
   Widget build(BuildContext context) {
-    final pourcent =
-        _progression == null ? null : (_progression! * 100).clamp(0, 100).round();
+    final pourcent = _progression == null
+        ? null
+        : (_progression! * 100).clamp(0, 100).round();
     return PopScope(
       canPop: false,
       child: AlertDialog(
