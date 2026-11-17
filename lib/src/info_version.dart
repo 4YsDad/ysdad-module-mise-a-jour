@@ -5,7 +5,8 @@ import 'dart:convert';
 /// ```json
 /// {
 ///   "latestVersionCode": 2028,
-///   "versionName": "1.0.0 (28)",
+///   "versionName": "28",
+///   "versionLabel": "28",
 ///   "apkUrl": "https://exemple.web.app/dl/xxxx/appli-v28.apk",
 ///   "notes": "Nouveautés en français",
 ///   "minVersionCode": 0,
@@ -17,6 +18,7 @@ class InfoVersion {
     required this.latestVersionCode,
     required this.versionName,
     required this.apkUrl,
+    this.versionLabel,
     this.notes = '',
     this.minVersionCode,
     this.sha256,
@@ -27,6 +29,17 @@ class InfoVersion {
 
   /// Nom lisible de la version (ex. « 1.0.0 (28) »).
   final String versionName;
+
+  /// Libellé court affiché à l'utilisateur (ex. « 30 »). Facultatif :
+  /// sinon [versionName] est utilisé.
+  final String? versionLabel;
+
+  /// Texte affiché : « 30 » dans « Nouvelle version 30 disponible ».
+  String get libelle {
+    final l = versionLabel?.trim();
+    if (l != null && l.isNotEmpty) return l;
+    return versionName;
+  }
 
   /// Adresse de téléchargement de l'APK.
   final String apkUrl;
@@ -59,6 +72,7 @@ class InfoVersion {
       latestVersionCode: latest,
       versionName: (json['versionName'] ?? '$latest').toString(),
       apkUrl: url,
+      versionLabel: json['versionLabel']?.toString(),
       notes: notes is List ? notes.join('\n') : (notes ?? '').toString(),
       minVersionCode: entier(json['minVersionCode']),
       sha256: (json['sha256'] as String?)?.trim().toLowerCase(),
@@ -74,4 +88,21 @@ class InfoVersion {
   /// La mise à jour est-elle obligatoire pour [installe] ?
   bool estObligatoirePour(int installe) =>
       minVersionCode != null && installe < minVersionCode!;
+}
+
+/// Libellé court d'une version installée, pour afficher « version 30 »
+/// plutôt que « 1.0.0 (2030) ».
+///
+/// * Si [versionName] est un simple nombre (« 30 ») ou commence par « v »,
+///   il est utilisé tel quel.
+/// * Sinon, le numéro de build est utilisé ; les décalages ajoutés par
+///   `--split-per-abi` (1000, 2000, 4000) sont retirés (2030 → 30).
+String libelleVersion(String versionName, String buildNumber) {
+  final nom = versionName.trim();
+  if (RegExp(r'^v?\.?\s*\d+$', caseSensitive: false).hasMatch(nom)) {
+    return nom.replaceAll(RegExp(r'^v\.?\s*', caseSensitive: false), '');
+  }
+  final build = int.tryParse(buildNumber.trim());
+  if (build == null || build <= 0) return nom;
+  return '${build >= 1000 ? build % 1000 : build}';
 }

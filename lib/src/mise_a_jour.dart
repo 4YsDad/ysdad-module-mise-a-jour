@@ -132,7 +132,7 @@ class YsdadMiseAJour {
       final pkg = await PackageInfo.fromPlatform();
       messager?.showSnackBar(SnackBar(
           content: Text(
-              '$_nomAppli est à jour (version ${pkg.version} (${pkg.buildNumber})).')));
+              '$_nomAppli est à jour (version ${libelleVersion(pkg.version, pkg.buildNumber)}).')));
       return ResultatVerification.aJour;
     } catch (e) {
       _log('Vérification manuelle échouée : $e');
@@ -372,7 +372,7 @@ class _AvisMiseAJour extends StatelessWidget {
       canPop: !obligatoire,
       child: AlertDialog(
         icon: const Icon(Icons.system_update_rounded, size: 36),
-        title: Text('Nouvelle version ${info.versionName} disponible'),
+        title: Text('Nouvelle version ${info.libelle} disponible'),
         content: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 320),
           child: SingleChildScrollView(
@@ -535,7 +535,7 @@ class _TelechargementState extends State<_Telechargement> {
       canPop: false,
       child: AlertDialog(
         title: Text(_erreur == null
-            ? 'Téléchargement de la version ${widget.info.versionName}'
+            ? 'Téléchargement de la version ${widget.info.libelle}'
             : 'Téléchargement interrompu'),
         content: _erreur != null
             ? Text(_erreur!)

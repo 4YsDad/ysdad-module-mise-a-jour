@@ -61,7 +61,8 @@ un message d’erreur réseau.
 ```json
 {
   "latestVersionCode": 2028,
-  "versionName": "1.0.0 (28)",
+  "versionName": "28",
+  "versionLabel": "28",
   "apkUrl": "https://monsite.web.app/dl/<jeton>/mon-appli-v28.apk",
   "notes": "Ce qui change, en français.\nUne ligne par nouveauté.",
   "minVersionCode": 0,
@@ -72,7 +73,8 @@ un message d’erreur réseau.
 | Champ | Rôle |
 |---|---|
 | `latestVersionCode` | versionCode Android de la dernière version publiée (obligatoire). |
-| `versionName` | Nom affiché dans l’avis. |
+| `versionName` | Nom de la version. |
+| `versionLabel` | Facultatif : libellé court affiché (« Nouvelle version 28 disponible »). Sinon `versionName`. |
 | `apkUrl` | Adresse de l’APK (obligatoire). |
 | `notes` | Nouveautés (texte ou liste de lignes). |
 | `minVersionCode` | Facultatif : sous ce versionCode, la mise à jour est **obligatoire** (pas de bouton Plus tard). |
@@ -128,3 +130,4 @@ et l’APK avec `Content-Type: application/vnd.android.package-archive` et
 | `YsdadMiseAJour.lireInfo()` | Lit le JSON (`InfoVersion`). |
 | `YsdadMiseAJour.versionCodeInstalle()` | versionCode installé (via `package_info_plus`). |
 | `YsdadMiseAJour.arreter()` | Arrête l’écoute de la reprise. |
+| `libelleVersion(versionName, buildNumber)` | Libellé court « 30 » (au lieu de « 1.0.0 (2030) ») pour afficher « version 30 ». |

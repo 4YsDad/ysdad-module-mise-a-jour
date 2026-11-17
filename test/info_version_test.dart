@@ -29,4 +29,18 @@ void main() {
     expect(() => InfoVersion.fromJson({'versionName': 'x'}),
         throwsFormatException);
   });
+
+  test('libellé court', () {
+    expect(libelleVersion('30', '2030'), '30');
+    expect(libelleVersion('1.0.0', '2029'), '29');
+    expect(libelleVersion('1.0.0', '28'), '28');
+    expect(libelleVersion('v. 31', '2031'), '31');
+    final info = InfoVersion.fromJson({
+      'latestVersionCode': 2030,
+      'versionName': '1.0.0',
+      'versionLabel': '30',
+      'apkUrl': 'https://x/a.apk'
+    });
+    expect(info.libelle, '30');
+  });
 }

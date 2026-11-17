@@ -1,6 +1,6 @@
 name: ysdad_mise_a_jour
 description: "Module Ysdad : avis de mise à jour automatique pour applis Flutter Android (APK hébergé), en français."
-version: 1.0.0
+version: 1.1.0
 publish_to: 'none'
 
 environment:
