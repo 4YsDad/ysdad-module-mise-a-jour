@@ -43,4 +43,13 @@ void main() {
     });
     expect(info.libelle, '30');
   });
+
+  test('mode magasin : storeUrl sans apkUrl', () {
+    final info = InfoVersion.fromJson({
+      'latestVersionCode': 6,
+      'storeUrl': 'https://play.google.com/store/apps/details?id=a.b',
+    });
+    expect(info.apkUrl, '');
+    expect(info.storeUrl, contains('play.google.com'));
+  });
 }

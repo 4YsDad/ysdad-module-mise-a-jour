@@ -40,6 +40,9 @@ public class YsdadMiseAJourPlugin implements FlutterPlugin, MethodChannel.Method
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
         switch (call.method) {
+            case "ouvrirUrl":
+                result.success(ouvrirUrl((String) call.argument("url")));
+                return;
             case "versionCode":
                 result.success(versionCode());
                 break;
@@ -102,6 +105,19 @@ public class YsdadMiseAJourPlugin implements FlutterPlugin, MethodChannel.Method
             } catch (ActivityNotFoundException ignored) {
                 return false;
             }
+        }
+    }
+
+    /** Ouvre une page (ex. la fiche Google Play) ; vrai si une appli l'a prise. */
+    private boolean ouvrirUrl(String url) {
+        if (url == null || url.isEmpty()) return false;
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            context.startActivity(intent);
+            return true;
+        } catch (ActivityNotFoundException ignored) {
+            return false;
         }
     }
 

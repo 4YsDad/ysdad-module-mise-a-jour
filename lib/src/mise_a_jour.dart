@@ -54,6 +54,7 @@ class YsdadMiseAJour {
   static void Function(String message)? _journal;
 
   static AppLifecycleListener? _ecouteur;
+  static bool _modeMagasin = false;
   static bool _reporteCetteSession = false;
   static bool _avisOuvert = false;
   static bool _verificationEnCours = false;
@@ -66,6 +67,10 @@ class YsdadMiseAJour {
   /// * [intervalle] : délai minimal entre deux vérifications à la reprise.
   /// * [normaliserVersionCode] : facultatif, transforme le versionCode lu
   ///   sur l'appareil avant la comparaison (ex. `(c) => c % 1000`).
+  /// * [modeMagasin] : pour une appli distribuée par Google Play. « Mettre à
+  ///   jour » ouvre `storeUrl` (la fiche du magasin) au lieu de télécharger un
+  ///   APK : rien n'est installé hors du magasin (règles de Google Play).
+  ///   Retirez aussi `REQUEST_INSTALL_PACKAGES` du manifeste de l'appli.
   static void configurer({
     required Uri urlVersion,
     required GlobalKey<NavigatorState> navigatorKey,
@@ -73,7 +78,9 @@ class YsdadMiseAJour {
     String nomAppli = 'l’appli',
     int Function(int versionCode)? normaliserVersionCode,
     void Function(String message)? journal,
+    bool modeMagasin = false,
   }) {
+    _modeMagasin = modeMagasin;
     _urlVersion = urlVersion;
     _navigatorKey = navigatorKey;
     _intervalle = intervalle;
@@ -253,6 +260,10 @@ class YsdadMiseAJour {
       {required bool obligatoire}) async {
     final ctx = _contexte;
     if (ctx == null) return;
+    if (_modeMagasin || info.apkUrl.isEmpty) {
+      await _ouvrirMagasin(info);
+      return;
+    }
     final fichier = await showDialog<File?>(
       context: ctx,
       barrierDismissible: false,
@@ -325,6 +336,27 @@ class YsdadMiseAJour {
       if (c != null && c.mounted) {
         ScaffoldMessenger.maybeOf(c)?.showSnackBar(const SnackBar(
             content: Text('Impossible d’ouvrir l’installeur Android.')));
+      }
+    }
+  }
+
+  static Future<void> _ouvrirMagasin(InfoVersion info) async {
+    final url = info.storeUrl;
+    var ok = false;
+    if (url != null && url.isNotEmpty) {
+      try {
+        ok = (await _canal.invokeMethod<bool>('ouvrirUrl', {'url': url})) ??
+            false;
+      } catch (e) {
+        _log('Ouverture du magasin : $e');
+      }
+    }
+    if (!ok) {
+      final c = _contexte;
+      if (c != null && c.mounted) {
+        ScaffoldMessenger.maybeOf(c)?.showSnackBar(const SnackBar(
+            content: Text(
+                'Ouvrez le Play Store pour installer la nouvelle version.')));
       }
     }
   }

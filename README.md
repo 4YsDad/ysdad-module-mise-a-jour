@@ -131,3 +131,34 @@ et l’APK avec `Content-Type: application/vnd.android.package-archive` et
 | `YsdadMiseAJour.versionCodeInstalle()` | versionCode installé (via `package_info_plus`). |
 | `YsdadMiseAJour.arreter()` | Arrête l’écoute de la reprise. |
 | `libelleVersion(versionName, buildNumber)` | Libellé court « 30 » (au lieu de « 1.0.0 (2030) ») pour afficher « version 30 ». |
+
+## Mode magasin (appli publiée sur Google Play)
+
+Google Play interdit qu'une appli se mette à jour hors du Play Store. Pour une
+appli publiée sur Play :
+
+```dart
+YsdadMiseAJour.configurer(
+  urlVersion: Uri.parse('https://monsite.web.app/version/mon-appli.json'),
+  navigatorKey: navigatorKey,
+  nomAppli: 'Mon appli',
+  modeMagasin: true,
+);
+```
+
+```json
+{
+  "latestVersionCode": 6,
+  "versionName": "1.1.0",
+  "storeUrl": "https://play.google.com/store/apps/details?id=mon.appli",
+  "notes": "Nouveautés"
+}
+```
+
+Et dans `android/app/src/main/AndroidManifest.xml` de l'appli (avec
+`xmlns:tools="http://schemas.android.com/tools"`) :
+
+```xml
+<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"
+    tools:node="remove" />
+```

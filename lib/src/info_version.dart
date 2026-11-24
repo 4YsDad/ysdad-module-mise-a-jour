@@ -18,6 +18,7 @@ class InfoVersion {
     required this.latestVersionCode,
     required this.versionName,
     required this.apkUrl,
+    this.storeUrl,
     this.versionLabel,
     this.notes = '',
     this.minVersionCode,
@@ -41,8 +42,12 @@ class InfoVersion {
     return versionName;
   }
 
-  /// Adresse de téléchargement de l'APK.
+  /// Adresse de téléchargement de l'APK (vide en mode magasin).
   final String apkUrl;
+
+  /// Page du magasin (ex. Google Play). Utilisée en mode magasin : le module
+  /// ouvre cette page au lieu de télécharger un APK.
+  final String? storeUrl;
 
   /// Nouveautés, en français. Les sauts de ligne sont conservés.
   final String notes;
@@ -63,15 +68,20 @@ class InfoVersion {
 
     final latest = entier(json['latestVersionCode']);
     final url = json['apkUrl'];
-    if (latest == null || url is! String || url.isEmpty) {
+    final store = json['storeUrl'];
+    final aApk = url is String && url.isNotEmpty;
+    final aStore = store is String && store.isNotEmpty;
+    if (latest == null || (!aApk && !aStore)) {
       throw const FormatException(
-          'JSON de version invalide : latestVersionCode et apkUrl sont requis.');
+          'JSON de version invalide : latestVersionCode et apkUrl '
+          '(ou storeUrl) sont requis.');
     }
     final notes = json['notes'];
     return InfoVersion(
       latestVersionCode: latest,
       versionName: (json['versionName'] ?? '$latest').toString(),
-      apkUrl: url,
+      apkUrl: aApk ? url : '',
+      storeUrl: aStore ? store : null,
       versionLabel: json['versionLabel']?.toString(),
       notes: notes is List ? notes.join('\n') : (notes ?? '').toString(),
       minVersionCode: entier(json['minVersionCode']),
